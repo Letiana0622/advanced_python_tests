@@ -1,46 +1,7 @@
-# This is a sample Python script.
+import requests
+import unittest
 
-# Press ⌃R to execute it or replace it with your code.
-# Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
-
-#
-# import types
-#
-# def flat_generator_(values_):
-#     new_list = reemoveNestings(values_)
-#     cursor = 0
-#     while cursor != len(new_list):
-#         yield new_list[cursor]
-#         cursor += 1
-#
-# def test_4():
-#
-#     list_of_lists_2 = [
-#         [['a'], ['b', 'c']],
-#         ['d', 'e', [['f'], 'h'], False],
-#         [1, 2, None, [[[[['!']]]]], []]
-#     ]
-#
-#     for flat_iterator_item, check_item in zip(
-#             flat_generator_(list_of_lists_2),
-#             ['a', 'b', 'c', 'd', 'e', 'f', 'h', False, 1, 2, None, '!']
-#     ):
-#
-#         assert flat_iterator_item == check_item
-#
-#     assert list(flat_generator_(list_of_lists_2)) == ['a', 'b', 'c', 'd', 'e', 'f', 'h', False, 1, 2, None, '!']
-#
-#     assert isinstance(flat_generator_(list_of_lists_2), types.GeneratorType)
-#
-#
-# if __name__ == '__main__':
-#     test_1()
-#     test_2()
-#     test_3()
-#     test_4()
-
+# ЗАДАЧА №1
 #Task1 0906
 #Дан список с визитами по городам и странам. Напишите код, который возвращает отфильтрованный список geo_logs, содержащий только визиты из России."
 def task_1(geo_logs):
@@ -137,29 +98,40 @@ def test_3():
     for key_number in key_numbers_check:
         assert key_number in task_3_check
 
-# #task4
-# #Дана статистика рекламных каналов по объемам продаж.
-# #Напишите скрипт, который возвращает название канала с максимальным объемом. #Т.е. в данном примере скрипт должен возвращать 'yandex'.
+
+
+# Задача №2 Автотест API Яндекса
+# Проверим правильность работы Яндекс.Диск REST API. Написать тесты, проверяющий создание папки на Диске.
+# Используя библиотеку requests напишите unit-test на верный ответ и возможные отрицательные тесты на ответы с ошибкой
 #
-# stats = {'facebook': 55, 'yandex': 120, 'vk': 115, 'google': 99, 'email': 42, 'ok': 98}
-# channal_max = max(stats, key = stats.get)
-# #https://docs-python.ru/tutorial/vstroennye-funktsii-interpretatora-python/funktsija-max/
-# print(channal_max)
-# print()
+# Пример положительных тестов:
 #
-# #Task5
-# #Напишите код для преобразования произвольного списка вида ['2018-01-01', 'yandex', 'cpc', 100] (он может быть любой длины) в словарь {'2018-01-01': {'yandex': {'cpc': 100}}}
-# random_ = ['2018-01-01', 'yandex', 'cpc', 100]
-# random_dict = {random_[-2]: random_[-1]}
-# # print(random_dict)
-# # print(random_[-3::-1])
-# for x in random_[-3::-1]:
-#   random_dict = {x:random_dict}
-# print(random_dict)
-# #Alternative solution from Expert comments:
-# #Вы вводите первый словарь list[-2]: list[-1] #Далее по циклу идете по правильному срезу с конца листа, т.е. можно применять сразу несколько срезов на лист. Пройти с конца [::-1] и с нужного элемента [2:] т.е. как бы в 3-его элемента с конца листа. #Дальше думаю разберетесь. Главное по сути правильно сделать срезу в листе, а так задача на 3 строчки.
-#
-#
+# Код ответа соответствует 200.
+# Результат создания папки - папка появилась в списке файлов.
+
+
+def folder_creation(folder_name, ya_token):
+        url = f'https://cloud-api.yandex.net/v1/disk/resources/'
+        headers = {'Content-Type': 'application/json',
+                   'Authorization': f'OAuth {ya_token}'}
+        params = {'path': f'{folder_name}',
+                  'overwrite': 'false'}
+        response = requests.put(url=url, headers=headers, params=params)
+        return response
+
+class TestFolderCreation(unittest.TestCase):
+#check Ya resonse 201 that folder is created
+    def test_API_positive1(self):
+        ya_token = ''
+        folder_name = 'unittest'
+        self.assertEqual(folder_creation(folder_name, ya_token).status_code, 201)
+#check Ya absence of response 409 that there is conflict
+    def test_API_negative1(self):
+        ya_token = ''
+        folder_name = 'unittest'
+        self.assertNotEqual(folder_creation(folder_name, ya_token).status_code, 409)
+
+
 if __name__ == '__main__':
     logs = [
         {'visit1': ['Москва', 'Россия']},
@@ -194,3 +166,8 @@ if __name__ == '__main__':
     test_2()
     print(task_3(queries))
     test_3()
+
+    ya_token = ''
+    folder_name = 'unittest'
+    print(folder_creation(folder_name, ya_token))
+    unittest.main()
